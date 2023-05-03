@@ -118,6 +118,58 @@ plt.show()
 # One problem with this dataset is that the number of non-victims outnumbers victims by almost 20 to 1. So we will take 120 non-victims and 120 victims and then create the testing and training sets.
 # I am not using all 209 victims as I feel this would overtrain on the data available to us. So we will use about 60% of what we have.
 
+# We should examine the rate of hypertension and and heart_disease for both type of patients.
+print(group_by_stroke.get_group(1)['hypertension'].value_counts())
+print("Percentage of stroke patients with hypertension: " + str(100 * (60/(149+60))) + "%")
+x_values = [0, 1] # 0 is no, 1 is yes.
+y_vals = [149, 60]
+plt.bar(x_values, y_vals)
+plt.title("Hypertension for Stroke Patients")
+plt.xlabel("Hypertension")
+plt.ylabel("Count")
+plt.xticks(np.arange(min(x_values), max(x_values)+1, 1.0))
+plt.show()
+
+print(group_by_stroke.get_group(0)['hypertension'].value_counts())
+print("Percentage of non-stroke patients with hypertension: " + str(100 * (388/(4265+388))) + "%")
+x_values = [0, 1] # 0 is no, 1 is yes.
+y_vals = [4265, 388]
+plt.bar(x_values, y_vals)
+plt.title("Hypertension for Non-Stroke Patients")
+plt.xlabel("Hypertension")
+plt.ylabel("Count")
+plt.xticks(np.arange(min(x_values), max(x_values)+1, 1.0))
+plt.show()
+
+# Only ~8.3% of non-stroke patients had a heart attack while ~28.7% of stroke patients did.
+# However age appears to be a large contributing factor to strokes and you are probably more likely to have had heart issues if you are older.
+# So let us not draw any conclusions yet.
+
+print(group_by_stroke.get_group(1)['heart_disease'].value_counts())
+print("Percentage of stroke patients with heart disease: " + str(100 * (40/(169+40))) + "%")
+x_values = [0, 1] # 0 is no, 1 is yes.
+y_vals = [169, 40]
+plt.bar(x_values, y_vals)
+plt.title("Heart Disease for Stroke Patients")
+plt.xlabel("Heart Disease")
+plt.ylabel("Count")
+plt.xticks(np.arange(min(x_values), max(x_values)+1, 1.0))
+plt.show()
+
+print(group_by_stroke.get_group(0)['heart_disease'].value_counts())
+print("Percentage of non-stroke patients with heart disease: " + str(100 * (203/(4450+203))) + "%")
+x_values = [0, 1] # 0 is no, 1 is yes.
+y_vals = [4450, 203]
+plt.bar(x_values, y_vals)
+plt.title("Heart Disease for Non-Stroke Patients")
+plt.xlabel("Heart Disease")
+plt.ylabel("Count")
+plt.xticks(np.arange(min(x_values), max(x_values)+1, 1.0))
+plt.show()
+
+# People who have had a stroke are over 4x more likely to have had heart disease.
+# Again, we know age appears to be a large contributing factor to strokes so let us not draw large conclusions yet.
+
 first_avg_accuracy = 0
 first_avg_precision = 0
 first_avg_recall = 0
@@ -158,7 +210,7 @@ f_score_indexes = (-selector.scores_).argsort()[:5]
     #print(selected_features)
     #print(f_score_indexes)
 
-# It seems like age (1) is the most important factor in determining whether or not somebody has had a stroke. Depending on the sampling, heart_disease (3), marriage (4), hypertension (2), and glucose level (6).
+# It seems like age (1) is the most important factor in determining whether or not somebody has had a stroke. Depending on the sampling, heart_disease (3), marriage (4), hypertension (2), and glucose level (6) are the other most important predictors.
 # Let's try a model with just these predictors and see if we can improve our accuracy. First we will resample.
 
 second_avg_accuracy = 0
@@ -244,7 +296,8 @@ predictor_importances = sorted(predictor_importances, key = lambda x: x[1], reve
 [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in predictor_importances]
 
 # According to this model, only 3 predictors have an importance level > 0.1: avg_glucose_level (0.32), bmi (0.27), and age (0.21). Let's fit another model with only these three predictors.
-
+# Remember that stroke patients were 4x more likely to have had heart disease than non-stroke patients. Here the importance level was only 0.02 for heart disease. 
+# This is why I was hesitant to draw big conclusions before testing.
 targets = np.array(stroke_data['stroke'])
 inputs = stroke_data.drop(['stroke','smoking_status', 'gender', 'hypertension', 'Residence_type', 'heart_disease', 'ever_married'], axis = 1)
 #print(inputs)
